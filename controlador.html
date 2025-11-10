@@ -1,0 +1,261 @@
+<html>
+<head>
+    <title>Pantalla 1: El Flujo</title>
+    <style>
+        /* --- Importar Fuente --- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        :root {
+            --bg-color: #0f0f12; --app-bg: rgba(40, 40, 40, 0.3);
+            --app-border: rgba(255, 255, 255, 0.1); --text-primary: #ffffff;
+            --accent-red: #ff3b30; --accent-green: #34c759;
+            --accent-blue: #007aff; --accent-pink: #ff2d55;
+            --accent-orange: #ff9500; --accent-purple: #af52de;
+        }
+        body {
+            font-family: 'Inter', sans-serif; background: var(--bg-color);
+            color: var(--text-primary); margin: 0;
+            height: 100vh; overflow: hidden;
+        }
+        .page {
+            display: none; width: 100%; height: 100%;
+            justify-content: center; align-items: center;
+            flex-direction: column; box-sizing: border-box; padding: 20px;
+        }
+        .page.active { display: flex; }
+        .back-button {
+            position: absolute; top: 30px; left: 30px;
+            font-size: 1.2rem; color: var(--text-primary); cursor: pointer;
+            z-index: 100; background: var(--app-bg); padding: 10px 20px;
+            border-radius: 12px; backdrop-filter: blur(10px);
+        }
+
+        /* --- PÁGINA "HOME" --- */
+        #page-home .dashboard {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 25px; max-width: 650px; width: 100%;
+        }
+        .app {
+            background: var(--app-bg); border: 1px solid var(--app-border);
+            border-radius: 24px; padding: 20px; text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        }
+        .app:hover { transform: scale(1.05); } .app:active { transform: scale(0.98); }
+        .app h2 { margin-top: 10px; margin-bottom: 0; font-size: 1.1rem; }
+        .app .emoji { font-size: 50px; line-height: 1; }
+        #app-reels { border-color: var(--accent-pink); }
+        #app-casino { border-color: var(--accent-green); }
+        #app-messages { border-color: var(--accent-blue); }
+        #app-time { grid-column: 1 / span 2; }
+        #distortion-bar-container {
+            width: 100%; background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px; height: 18px; overflow: hidden;
+        }
+        #distortion-bar {
+            width: 0%; height: 100%;
+            background: linear-gradient(90deg, var(--accent-green) 0%, var(--accent-orange) 50%, var(--accent-red) 100%);
+            transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* --- PÁGINA "REELS" --- */
+        #page-reels { background: #111; }
+        .fake-reel {
+            width: 300px; height: 500px;
+            background: linear-gradient(160deg, var(--accent-pink), var(--accent-blue));
+            border-radius: 20px;
+            box-shadow: 0 0 50px var(--accent-pink);
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+        .next-reel-button {
+            background: var(--accent-blue); border: none; border-radius: 12px;
+            color: white; font-size: 1.2rem; padding: 15px 30px;
+            cursor: pointer;
+        }
+
+        /* --- PÁGINA "CASINO" --- */
+        #page-casino { background: #1a001a; }
+        .slot-machine { font-size: 100px; margin-bottom: 30px; }
+        .spin-button {
+            background: linear-gradient(145deg, #ff0057, #ff6a00);
+            border: none; border-radius: 20px; color: white;
+            font-size: 30px; font-weight: bold; padding: 20px 40px;
+            cursor: pointer; box-shadow: 0 10px 30px rgba(255, 0, 87, 0.5);
+        }
+        .spin-button:active { transform: scale(0.95); }
+
+        /* --- PÁGINA "MENSAJES" --- */
+        #page-messages { background: #0c1a2e; }
+        .chat-container {
+            width: 320px; display: flex; flex-direction: column;
+            background: #1c1c1e; padding: 15px; border-radius: 20px;
+            height: 400px;
+        }
+        .bubble {
+            padding: 12px 18px; border-radius: 20px;
+            margin-bottom: 10px; max-width: 80%;
+        }
+        .bubble.them { background: #333; align-self: flex-start; }
+        .chat-input-area {
+            display: flex; margin-top: auto;
+        }
+        .chat-input {
+            flex-grow: 1; background: #333; border: none;
+            border-radius: 15px; padding: 10px 15px; color: white;
+            margin-right: 10px;
+        }
+        .send-button {
+            background: var(--accent-blue); border: none;
+            border-radius: 15px; padding: 10px 15px;
+            color: white; font-weight: bold; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="page-home" class="page active">
+        <div class="dashboard">
+            <div class="app" id="app-reels" onclick="showPage('reels')">
+                <div class="emoji">📹</div> <h2>Reels</h2>
+            </div>
+            <div class="app" id="app-casino" onclick="showPage('casino')">
+                <div class="emoji">🎰</div> <h2>Juego</h2>
+            </div>
+            <div class="app" id="app-messages" onclick="showPage('messages')">
+                <div class="emoji">💬</div> <h2>Mensajes</h2>
+            </div>
+            <div class="app" id="app-time">
+                <h2>NIVEL DE DISTORSIÓN (PASIVO)</h2>
+                <div id="distortion-bar-container">
+                    <div id="distortion-bar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-reels" class="page">
+        <div class="back-button" onclick="showPage('home')">← Volver</div>
+        <div class="fake-reel"></div>
+        <button class="next-reel-button" onclick="nextReel()">Siguiente →</button>
+    </div>
+
+    <div id="page-casino" class="page">
+        <div class="back-button" onclick="showPage('home')">← Volver</div>
+        <div class="slot-machine" id="slot-emoji">🍒</div>
+        <button class="spin-button" onclick="spinCasino()">¡GIRAR!</button>
+    </div>
+
+    <div id="page-messages" class="page">
+        <div class="back-button" onclick="showPage('home')">← Volver</div>
+        <div class="chat-container">
+            <div class="bubble them">¡Urgente! ¿Viste el mail?</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" class="chat-input" placeholder="Escribe un mensaje...">
+            <button class="send-button" onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        // === 1. PEGA TU CONFIGURACIÓN DE FIREBASE AQUÍ === CAMBIA ESTOOO
+        const firebaseConfig = {
+                apiKey: "AIzaSyDk6DLABMeAYARQ",
+                authDomain: "eco--3fea1.firebaseapp.com",
+
+                };
+
+        // === 2. INICIA FIREBASE Y EL ESTADO ===
+        firebase.initializeApp(firebaseConfig);
+        var database = firebase.database();
+        var distortionRef = database.ref('distortion');
+        var currentDistortion = 0;
+        var distortionBar = document.getElementById('distortion-bar');
+        
+        // === 3. LÓGICA DE NAVEGACIÓN (CORREGIDA) ===
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            var correctId = 'page-' + pageId;
+            if (pageId === 'home') {
+                correctId = 'page-home';
+            }
+            
+            document.getElementById(correctId).classList.add('active');
+        }
+
+        // === 4. LÓGICA DE APPS INTERACTIVAS ===
+        
+        // APP CASINO:
+        var slotEmojis = ["🍒", "🍋", "🔔", "💰", "🎰", "💀"];
+        function spinCasino() {
+            triggerDistortion('casino');
+            var emojiEl = document.getElementById('slot-emoji');
+            var randomEmoji = slotEmojis[Math.floor(Math.random() * slotEmojis.length)];
+            emojiEl.textContent = randomEmoji;
+        }
+
+        // APP REELS:
+        function nextReel() {
+            triggerDistortion('reels');
+            var reelEl = document.querySelector('.fake-reel');
+            var r = Math.floor(Math.random() * 255);
+            var g = Math.floor(Math.random() * 255);
+            var b = Math.floor(Math.random() * 255);
+            reelEl.style.background = `rgb(${r},${g},${b})`;
+        }
+        
+        // APP MENSAJES:
+        function sendMessage() {
+            triggerDistortion('message');
+            document.querySelector('.chat-input').value = "";
+        }
+
+        // === 5. LÓGICA DE DISTORSIÓN (CENTRALIZADA) ===
+        function triggerDistortion(source) {
+            let increase = 0;
+            let type = 'passive';
+
+            switch(source) {
+                case 'reels':   increase = 2; type = 'reels';   break;
+                case 'casino':  increase = 10; type = 'casino';  break;
+                case 'message': increase = 1; type = 'message'; break;
+                case 'passive': increase = 1; type = 'passive'; break;
+            }
+            
+            currentDistortion += increase;
+            if (currentDistortion > 100) currentDistortion = 100;
+
+            distortionRef.set({
+                level: currentDistortion,
+                type: type
+            });
+            
+            distortionBar.style.width = currentDistortion + '%';
+        }
+        
+        // Degradación pasiva
+        setInterval(function() {
+            if (document.getElementById('page-home').classList.contains('active')) {
+                triggerDistortion('passive');
+            }
+        }, 5000); // 5 segundos
+        
+        
+        // Resetea a 0 al cargar la página
+        function resetDistortion() {
+            currentDistortion = 0;
+            distortionRef.set({ level: 0, type: 'passive' });
+            distortionBar.style.width = '0%';
+        }
+        resetDistortion(); // Llama al reseteo al cargar
+
+    </script>
+</body>
+</html>
